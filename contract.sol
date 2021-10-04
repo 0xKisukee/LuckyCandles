@@ -833,14 +833,13 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     Counters.Counter private _tokenId;
 
     //VARIABLES
-    uint256 public CandlesCap = 10;
+    uint256 public CandlesCap = 13000;
     uint256 public price = 5000000000000; //0.000005 Ether
     string baseTokenURI;
     address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
     address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
     mapping (address => uint) earlyMembers;
     bool privateCalled;
-    bool unrevealCalled;
     bool revealCalled;
     
     WhitelistInterface public whitelist = WhitelistInterface(0x48E611316855AB9b1101ee5ed569EF81976666FC);
@@ -899,10 +898,9 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     }
     
     function setUnrevealURI(string memory _valueURI) onlyMember1 public {
-        require(unrevealCalled == false);
+        require(revealCalled == false);
         
         baseTokenURI = _valueURI;
-        unrevealCalled == true;
     }
     
     function reveal(string memory _valueURI) onlyMember1 public {
