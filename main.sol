@@ -836,8 +836,8 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     uint256 public CandlesCap = 13000;
     uint256 public price = 5000000000000; //0.000005 Ether
     string baseTokenURI;
-    address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
-    address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
+    address member1 = 0x30E88c0cC913Ca1487E352A3bE9FCAe1A3cC78Ca; //Member 1 (60%)
+    address member2 = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e; //Member 2 (40%)
     mapping (address => uint) earlyMembers;
     bool privateCalled;
     bool revealCalled;
@@ -881,10 +881,10 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         earlyMembers[msg.sender] += _amount;
     }
     
-    function privateBuyCandle() public onlyMember2 {
+    function privateBuyCandle() public onlyMember1 {
         require(privateCalled == false, "You already called this function.");
         
-        for (uint256 i = 0; i < 10; i++) {
+        for (uint256 i = 0; i < 200; i++){
             _mint(msg.sender);
         }
         privateCalled = true;
@@ -959,6 +959,7 @@ contract Royalties {
     //VARIABLES
     mapping(uint => uint) public soustraction;
     uint public bonus;
+    
     
     //FUNCTIONS
     function harvest(uint _id) payable public {
