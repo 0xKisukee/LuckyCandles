@@ -825,7 +825,7 @@ contract Whitelist {
 }
 
 interface WhitelistInterface {
-    function isWhitelisted(address _user) external view returns (bool);
+    function Whitelisted(address _user) external view returns (bool);
 }
 
 contract LuckyCandles is ERC721Enumerable, Ownable {
@@ -833,15 +833,17 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     Counters.Counter private _tokenId;
 
     //VARIABLES
-    uint256 public CandlesCap = 13000;
-    uint256 public price = 5000000000000; //0.000005 Ether
+    uint256 public CandlesCap = 3250;
+    uint256 public price = 1000000000000000000; //0.1 Ether
     string baseTokenURI;
     address member1 = 0x30E88c0cC913Ca1487E352A3bE9FCAe1A3cC78Ca; //Member 1 (60%)
     address member2 = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e; //Member 2 (40%)
-    mapping (address => uint) earlyMembers;
+    mapping (address => uint) earlyCap;
+    bool saleOpen;
+    bool earlyOpened;
     bool privateCalled;
     bool revealCalled;
-    
+
     WhitelistInterface public whitelist = WhitelistInterface(0x48E611316855AB9b1101ee5ed569EF81976666FC);
 
     constructor() ERC721("LuckyCandles", "LC") {
@@ -856,9 +858,23 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
 
         return tokensId;
     }
+    
+    function flipSale() public onlyMember1 {
+        saleOpen = !saleOpen;
+    }
+    
+    function nextRound() public onlyMember1 {
+        require(CandlesCap < 13000);
+        
+        CandlesCap += 3250;
+    }
+    
+    function openEarlyMint() public onlyMember1 {
+        earlyOpened = true;
+    }
 
     function buyCandle(uint256 _amount) public payable {
-        require(block.number > 0, "You can't mint yet.");
+        require(saleOpen == true, "You can't mint yet.");
         require(_amount > 0 && _amount <= 10, "You have to mint between 1 and 10 Candles.");
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
@@ -869,16 +885,16 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     }
     
     function earlyBuyCandle(uint256 _amount) public payable {
-        require(block.number > 0, "You can't mint yet.");
-        require(earlyMembers[msg.sender] + _amount <= 2, "You can't mint more than 2 Candles.");
+        require(whitelist.Whitelisted(msg.sender) == true, "You are not an ambassador.");
+        require(earlyOpened == true, "You can't mint yet.");
+        require(earlyCap[msg.sender] + _amount <= 2, "You can't mint more than 2 Candles.");
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
-        require(whitelist.isWhitelisted(msg.sender) == true, "You are not an ambassador.");
 
         for (uint256 i = 0; i < _amount; i++) {
             _mint(msg.sender);
         }
-        earlyMembers[msg.sender] += _amount;
+        earlyCap[msg.sender] += _amount;
     }
     
     function privateBuyCandle() public onlyMember1 {
@@ -895,12 +911,6 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         uint256 member2Part = address(this).balance / 2;
         payable(member1).transfer(member1Part);
         payable(member2).transfer(member2Part);
-    }
-    
-    function setUnrevealURI(string memory _valueURI) onlyMember1 public {
-        require(revealCalled == false);
-        
-        baseTokenURI = _valueURI;
     }
     
     function reveal(string memory _valueURI) onlyMember1 public {
@@ -962,8 +972,8 @@ contract Royalties {
     
     
     //FUNCTIONS
-    function harvest(uint _id) payable public {
-        require(luckyCand.supply() >= 10, "You can't harvest your royalties before sold out.");
+    function harvestForCandle(uint _id) payable public {
+        require(luckyCand.supply() >= 13000, "You can't harvest your royalties before sold out.");
         require(msg.sender == luckyCand.holderOf(_id));
         
         uint amount = (address(this).balance + bonus - soustraction[_id]) / 10;
@@ -973,3 +983,4 @@ contract Royalties {
         payable(msg.sender).transfer(amount);
     }
 }
+
