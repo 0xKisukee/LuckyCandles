@@ -838,6 +838,7 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     string baseTokenURI;
     address member1 = 0x30E88c0cC913Ca1487E352A3bE9FCAe1A3cC78Ca; //Member 1 (60%)
     address member2 = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e; //Member 2 (40%)
+    address stakingContract = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e;
     mapping (address => uint) earlyCap;
     bool saleOpen;
     bool earlyOpened;
@@ -871,6 +872,12 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     
     function openEarlyMint() public onlyMember1 {
         earlyOpened = true;
+    }
+    
+    function stake(uint _id) public {
+        require(msg.sender == ownerOf(_id));
+        
+        transferFrom(msg.sender, stakingContract, _id);
     }
 
     function buyCandle(uint256 _amount) public payable {
@@ -906,7 +913,7 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         privateCalled = true;
     }
 
-    function withdraw() payable public {
+    function withdraw() public {
         uint256 member1Part = address(this).balance / 2;
         uint256 member2Part = address(this).balance / 2;
         payable(member1).transfer(member1Part);
@@ -945,11 +952,6 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     //MODIFIER
     modifier onlyMember1 {
         require(msg.sender == member1);
-    _;
-    }
-    
-    modifier onlyMember2 {
-        require(msg.sender == member2);
     _;
     }
 }
