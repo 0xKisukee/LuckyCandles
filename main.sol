@@ -829,6 +829,7 @@ interface WhitelistInterface {
 }
 
 contract LuckyCandles is ERC721Enumerable, Ownable {
+    
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
 
@@ -836,16 +837,16 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     uint256 public CandlesCap = 3250;
     uint256 public price = 1000000000000000000; //0.1 Ether
     string baseTokenURI;
-    address member1 = 0x30E88c0cC913Ca1487E352A3bE9FCAe1A3cC78Ca; //Member 1 (60%)
-    address member2 = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e; //Member 2 (40%)
-    address stakingContract = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e;
+    address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
+    address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
+    address stakingContract = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
     mapping (address => uint) earlyCap;
     bool saleOpen;
     bool earlyOpened;
     bool privateCalled;
     bool revealCalled;
 
-    WhitelistInterface public whitelist = WhitelistInterface(0x48E611316855AB9b1101ee5ed569EF81976666FC);
+    WhitelistInterface public whitelist = WhitelistInterface(0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
 
     constructor() ERC721("LuckyCandles", "LC") {
     }
@@ -858,6 +859,10 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         }
 
         return tokensId;
+    }
+    
+    function setStakingContract(address _contract) public onlyMember1 {
+        stakingContract = _contract;
     }
     
     function flipSale() public onlyMember1 {
@@ -874,10 +879,12 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         earlyOpened = true;
     }
     
-    function stake(uint _id) public {
-        require(msg.sender == ownerOf(_id));
-        
-        transferFrom(msg.sender, stakingContract, _id);
+    function send(address from, address to, uint _id) public onlyStaking {
+        transferFrom(from, to, _id);
+    }
+
+    function approveStaking(uint _id) public {
+        approve(stakingContract, _id);
     }
 
     function buyCandle(uint256 _amount) public payable {
@@ -952,6 +959,11 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     //MODIFIER
     modifier onlyMember1 {
         require(msg.sender == member1);
+    _;
+    }
+    
+    modifier onlyStaking {
+        require(msg.sender == stakingContract);
     _;
     }
 }
