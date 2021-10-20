@@ -834,8 +834,9 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     Counters.Counter private _tokenId;
 
     //VARIABLES
-    uint256 public CandlesCap = 3250;
-    uint256 public price = 1000000000000000000; //0.1 Ether
+    uint public CandlesCap = 3250;
+    uint public price = 1000000000000000000; //0.1 Ether
+    uint public privateCalled = 200;
     string baseTokenURI;
     address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
     address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
@@ -843,7 +844,6 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     mapping (address => uint) earlyCap;
     bool saleOpen;
     bool earlyOpened;
-    bool privateCalled;
     bool revealCalled;
 
     WhitelistInterface public whitelist = WhitelistInterface(0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
@@ -852,9 +852,9 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     }
 
     function walletOfOwner(address _owner) external view returns (uint256[] memory) {
-        uint256 tokenCount = balanceOf(_owner);
-        uint256[] memory tokensId = new uint256[](tokenCount);
-        for (uint256 i = 0; i < tokenCount; i++) {
+        uint tokenCount = balanceOf(_owner);
+        uint[] memory tokensId = new uint[](tokenCount);
+        for (uint i = 0; i < tokenCount; i++) {
             tokensId[i] = tokenOfOwnerByIndex(_owner, i);
         }
 
@@ -893,67 +893,52 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
 
-        for (uint256 i = 0; i < _amount; i++) {
+        for (uint i = 0; i < _amount; i++) {
             _mint(msg.sender);
         }
     }
     
-    function earlyBuyCandle(uint256 _amount) public payable {
+    function earlyBuyCandle(uint _amount) public payable {
         require(whitelist.Whitelisted(msg.sender) == true, "You are not an ambassador.");
         require(earlyOpened == true, "You can't mint yet.");
         require(earlyCap[msg.sender] + _amount <= 2, "You can't mint more than 2 Candles.");
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
 
-        for (uint256 i = 0; i < _amount; i++) {
+        for (uint i = 0; i < _amount; i++) {
             _mint(msg.sender);
         }
         earlyCap[msg.sender] += _amount;
     }
     
-    function privateBuyCandle() public onlyMember1 {
-        require(privateCalled == false, "You already called this function.");
+    function privateBuyCandle(uint _amount) public onlyMember1 {
+        require(privateCalled - _amount > 0, "You can't mint more pricate Candles.");
         
-        for (uint256 i = 0; i < 200; i++){
+        for (uint i = 0; i < _amount; i++){
             _mint(msg.sender);
         }
-        privateCalled = true;
+        privateCalled -= _amount;
     }
 
     function withdraw() public {
-        uint256 member1Part = address(this).balance / 2;
-        uint256 member2Part = address(this).balance / 2;
+        uint member1Part = address(this).balance * 6 / 10;
+        uint member2Part = address(this).balance * 4 / 10;
         payable(member1).transfer(member1Part);
         payable(member2).transfer(member2Part);
     }
     
     function reveal(string memory _valueURI) onlyMember1 public {
-        require(revealCalled == false);
-        
         baseTokenURI = _valueURI;
-        revealCalled == true;
     }
 
     function _mint(address _to) private {
         _tokenId.increment();
-        uint256 tokenId = _tokenId.current();
+        uint tokenId = _tokenId.current();
         _safeMint(_to, tokenId);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
-    }
-    
-    function solde(address _user) public view returns (uint) {
-        return balanceOf(_user);
-    }
-    
-    function supply() public view returns (uint) {
-        return totalSupply();
-    }
-    
-    function holderOf(uint _id) public view returns (address) {
-        return ownerOf(_id);
     }
     
     //MODIFIER
@@ -967,34 +952,3 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     _;
     }
 }
-
-interface LuckyCandlesInterface {
-    function solde(address _user) external view returns (uint);
-    function supply() external view returns (uint);
-    function holderOf(uint _id) external view returns (address);
-}
-
-contract Royalties {
-    
-    LuckyCandlesInterface public luckyCand = LuckyCandlesInterface(0x168352c502614FDa3e174B95e4dEBBb81095F70C);
-    
-    receive() external payable {}
-    
-    //VARIABLES
-    mapping(uint => uint) public soustraction;
-    uint public bonus;
-    
-    
-    //FUNCTIONS
-    function harvestForCandle(uint _id) payable public {
-        require(luckyCand.supply() >= 13000, "You can't harvest your royalties before sold out.");
-        require(msg.sender == luckyCand.holderOf(_id));
-        
-        uint amount = (address(this).balance + bonus - soustraction[_id]) / 10;
-        soustraction[_id] = address(this).balance + bonus;
-        bonus += amount;
-        
-        payable(msg.sender).transfer(amount);
-    }
-}
-
