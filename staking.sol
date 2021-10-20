@@ -4,7 +4,6 @@ pragma solidity ^0.8.7;
 
 interface CandlesInterface {
     function send(address from, address to, uint _id) external;
-    function approveStaking(uint _id) external;
 }
 
 contract Staking {
