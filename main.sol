@@ -835,8 +835,8 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
 
     //VARIABLES
     uint public CandlesCap = 3250;
-    uint public price = 1000000000000000000; //0.1 Ether
-    uint public privateCalled = 200;
+    uint public price = 10000000000000000; //0.001 Ether
+    uint public privateRemaining = 200;
     string baseTokenURI;
     address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
     address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
@@ -912,12 +912,12 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     }
     
     function privateBuyCandle(uint _amount) public onlyMember1 {
-        require(privateCalled - _amount > 0, "You can't mint more pricate Candles.");
+        require(privateRemaining - _amount > 0, "You can't mint more private Candles.");
         
         for (uint i = 0; i < _amount; i++){
             _mint(msg.sender);
         }
-        privateCalled -= _amount;
+        privateRemaining -= _amount;
     }
 
     function withdraw() public {
