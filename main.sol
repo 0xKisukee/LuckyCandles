@@ -814,7 +814,7 @@ contract Whitelist {
     mapping(address => bool) isWhitelisted;
     
     constructor() {
-        isWhitelisted[0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0] = true;
+        isWhitelisted[0x07751D79107AE64ca8E8E106CcEBD5EcCf4Ee40c] = true;
         isWhitelisted[0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0] = true;
         isWhitelisted[0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0] = true;
     }
@@ -828,14 +828,14 @@ interface WhitelistInterface {
     function Whitelisted(address _user) external view returns (bool);
 }
 
-contract LuckyCandles is ERC721Enumerable, Ownable {
+contract LuckyCandle is ERC721Enumerable, Ownable {
     
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
 
     //VARIABLES
     uint public CandlesCap = 3250;
-    uint public price = 10000000000000000; //0.001 Ether
+    uint public price = 100000000000000000; //0.1 Ether
     uint public privateRemaining = 200;
     string baseTokenURI;
     address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
@@ -846,9 +846,9 @@ contract LuckyCandles is ERC721Enumerable, Ownable {
     bool earlyOpened;
     bool revealCalled;
 
-    WhitelistInterface public whitelist = WhitelistInterface(0x5B38Da6a701c568545dCfcB03FcB875f56beddC4);
+    WhitelistInterface public whitelist = WhitelistInterface(0x5333d530e5205e25fd6E9Ac59F5d26feAcd24289);
 
-    constructor() ERC721("LuckyCandles", "LC") {
+    constructor() ERC721("Lucky Candle", "LC") {
     }
 
     function walletOfOwner(address _owner) external view returns (uint256[] memory) {
