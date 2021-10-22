@@ -1332,7 +1332,7 @@ contract LuckyCandle is ERC721Enumerable, Ownable {
     //VARIABLES
     uint public CandlesCap = 3250;
     uint public price = 100000000000000000; //0.1 Ether
-    uint public privateRemaining = 200;
+    uint public privateRemaining = 500;
     string baseTokenURI;
     address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
     address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
