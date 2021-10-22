@@ -834,6 +834,7 @@ contract Whitelist {
 		isWhitelisted[0x8e4fEC38926D4C053feb98Cce4560dEBD1D2b6dA] = true;
 		isWhitelisted[0x73DeD7A5C7E67dBb45b709A2320F3Ac6C5f9bB8E] = true;
 		isWhitelisted[0x56654a1FAD1A312AFA4D73F716ce0a1a4D9cAdb2] = true;
+		isWhitelisted[0xfa652f11c83a44013B7330E425c80f158C4A3E41] = true;
 		isWhitelisted[0x9e186e87bB9475e6BbB37B9a1924415f5DF9C415] = true;
 		isWhitelisted[0x97F462C5CE7b75866b59170D60905e1f514d92C8] = true;
 		isWhitelisted[0x815e276F5c017dB1F46315FAB294F1B5cA0f0e41] = true;
@@ -1251,6 +1252,7 @@ contract Whitelist {
 		isWhitelisted[0x03Cc45057678220eE25489859C02B1a94854Fe5f] = true;
 		isWhitelisted[0x971b4BEd80d623365dE20914e863D47E367eD6b0] = true;
 		isWhitelisted[0x5a43A58A2000869D4ade60209De56F63f9c7Fd61] = true;
+		isWhitelisted[0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0] = true;
 		isWhitelisted[0x9DB1B9F6a25C70BCa9ee5ac500e0E0F63Db22C66] = true;
 		isWhitelisted[0xd08aE8fF30eACD4caE21a349629DB7178665106f] = true;
 		isWhitelisted[0xB5B2049FD6f1E62Ea2893949D8A6205B3656D04F] = true;
@@ -1313,6 +1315,8 @@ contract Whitelist {
 		isWhitelisted[0xFf3B582145bEAB6e33604FC8E873915A97C310C8] = true;
 		isWhitelisted[0x68eDb29E1f4E35438024e928029bf01e9942AD62] = true;
 		isWhitelisted[0x1A6212882Bb366d32D7bEaF0f1b7bB7d817F9d71] = true;
+		isWhitelisted[0xE9EDDde6aF419faAB642921e24f68349Ec5B9071] = true;
+		isWhitelisted[0xE06E4B9d9506881956D8a552B97b4bbe55092606] = true;
     }
     
     function Whitelisted(address _user) public view returns (bool) {
@@ -1333,16 +1337,16 @@ contract LuckyCandle is ERC721Enumerable, Ownable {
     uint public CandlesCap = 3250;
     uint public price = 100000000000000000; //0.1 Ether
     uint public privateRemaining = 500;
-    string baseTokenURI;
-    address member1 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 1 (60%)
-    address member2 = 0x1002CA2d139962cA9bA0B560C7A703b4A149F6e0; //Member 2 (40%)
-    address stakingContract = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    string baseTokenURI = "ipfs://QmPFuyLB5cWJZ1wT31vWsnb36k8TFBtR1fUqhjdeZUqChH/";
+    address member1 = 0x69792F694FEB6767E27b6236AA036d6634c44E00;
+    address member2 = 0x28394aa7473C8e2201E32fC4A4dB89e87a4D222e;
+    address stakingContract;
     mapping (address => uint) earlyCap;
     bool saleOpen;
     bool earlyOpened;
     bool revealCalled;
 
-    WhitelistInterface public whitelist = WhitelistInterface(0x5333d530e5205e25fd6E9Ac59F5d26feAcd24289);
+    WhitelistInterface public whitelist = WhitelistInterface(0x90facD7312F770D1B31bf452F7D1C0452aDB2418);
 
     constructor() ERC721("Lucky Candle", "LC") {
     }
@@ -1385,7 +1389,7 @@ contract LuckyCandle is ERC721Enumerable, Ownable {
 
     function buyCandle(uint256 _amount) public payable {
         require(saleOpen == true, "You can't mint yet.");
-        require(_amount > 0 && _amount <= 50, "You have to mint between 1 and 10 Candles.");
+        require(_amount > 0 && _amount <= 50, "You have to mint between 1 and 50 Candles.");
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
 
@@ -1408,7 +1412,7 @@ contract LuckyCandle is ERC721Enumerable, Ownable {
     }
     
     function privateBuyCandle(uint _amount) public onlyMember1 {
-        require(privateRemaining - _amount > 0, "You can't mint more private Candles.");
+        require(privateRemaining - _amount >= 0, "You can't mint more private Candles.");
         
         for (uint i = 0; i < _amount; i++){
             _mint(msg.sender);
