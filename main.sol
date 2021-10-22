@@ -1385,7 +1385,7 @@ contract LuckyCandle is ERC721Enumerable, Ownable {
 
     function buyCandle(uint256 _amount) public payable {
         require(saleOpen == true, "You can't mint yet.");
-        require(_amount > 0 && _amount <= 10, "You have to mint between 1 and 10 Candles.");
+        require(_amount > 0 && _amount <= 50, "You have to mint between 1 and 10 Candles.");
         require(totalSupply() + _amount <= CandlesCap, "Candles cap will be exceeded.");
         require(msg.value >= price * _amount, "Ether amount is not correct.");
 
